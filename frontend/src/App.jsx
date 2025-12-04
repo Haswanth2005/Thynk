@@ -1,8 +1,6 @@
-import Navbar from "./components/navbar.component";
-
 const App = () => {
     return (
-        <Navbar/>
+        <h1>MERN Blogging website by modern web</h1>
     )
 }
 
