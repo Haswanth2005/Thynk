@@ -1,5 +1,4 @@
 @import url('https://fonts.googleapis.com/css2?family=Gelasio&family=Inter:wght@400;500&display=swap');
-@import "@flaticon/flaticon-uicons/css/all/all";
 
 @tailwind base;
 @tailwind components;
@@ -67,9 +66,8 @@
     }
 
     .link{
-        @apply text-dark-grey hover:text-black hover:bg-grey p-3 px-4 block opacity-75;
+        @apply text-dark-grey hover:text-black hover:bg-grey p-3 px-4 block opacity-75 ;
     }
-
     .hide{
         @apply opacity-0 pointer-events-none duration-100;
     }
