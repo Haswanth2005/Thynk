@@ -1,23 +1,29 @@
 import React from 'react'
 import InputBox from '../components/input.component'
-import { Link } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import AnimationWrapper from '../common/page-animation'
 import { useRef } from 'react'
 import { Toaster, toast } from "react-hot-toast";
 import  axios  from "axios";
+import { storeInSession } from '../common/session'
+import { useContext } from 'react'
+import { UserContext } from '../App'
+// import { isFormElement } from 'react-router-dom/dist/dom'
 
 const UserAuthForm = ({ type }) => {
 
-  const authForm = useRef();
+  let { userAuth = {}, setUserAuth } = useContext(UserContext) || {}
+  let { access_token } = userAuth
+
+
 
   const userAuthThroughServer = (serverRoute, formData) => {
     //to make requests
-    console.log(import.meta.env.VITE_SERVER_DOMAIN + serverRoute, formData);
 
     axios.post(import.meta.env.VITE_SERVER_DOMAIN + serverRoute, formData)
       .then(({ data }) => {
-        console.log(data);
-
+        storeInSession("user", JSON.stringify(data))
+        setUserAuth(data)
       })
       .catch(({ response }) => {
         toast.error(response.data.error)
@@ -34,7 +40,7 @@ const UserAuthForm = ({ type }) => {
     let passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,20}$/;
 
     //formData
-    let form = new FormData(authForm.current)
+    let form = new FormData(formElement)
     let formData = {}
 
     for (let [key, value] of form.entries()) {
@@ -66,11 +72,14 @@ const UserAuthForm = ({ type }) => {
   }
 
   return (
+    access_token ?
+    <Navigate to="/" />
+    :
     <>
       <AnimationWrapper keyValue={type}>
         <section className='h-cover flex items-center justify-center '>
           <Toaster />
-          <form ref={authForm} className='w-[80%] max-w-[400px]'>
+          <form id="formElement" className='w-[80%] max-w-[400px]'>
             <h1 className='text-4xl font-gelasio capitalize text-center mb-16'>
               {type == "sign-in" ? "Welcome back" : "Join  us today"}
             </h1>
