@@ -15,7 +15,7 @@ import User  from "./Schema/User.js";
 const serviceAccountKey = JSON.parse(fs.readFileSync("./thynk-875-firebase-adminsdk-fbsvc-5cbda0404e.json", "utf8"))
 
 const server = express();
-let PORT = 3000
+let PORT = process.env.PORT || 5000
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccountKey)
@@ -31,6 +31,25 @@ mongoose.connect(process.env.DB_LOCATION, {
   autoIndex: true
 })
 
+// const s3 = new AWS.S3({
+//   region :'',
+//   accessKeyId : process.env.AWS_ACCESS_KEY,
+//   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+// })
+
+// const generateUploadURL = ()=>{
+//   const date = new Date();
+//   const imageName = `${nanoid()}-${date.getTime()}`
+
+//   return await S3.getSignedUrlPromise('putObject', {
+//     Bucket: 'blogging-website-yt-tutorial',
+//     key: imageName,
+//     Expires:1000,
+//     ContentType: "image/jpeg"
+//   }
+//   )
+// }
+ 
 const formatDatatoSend = (user) => {
 
   const access_token = jwt.sign({id: user._id}, process.env.SECRET_ACCESS_KEY)
@@ -50,9 +69,16 @@ const generateUsername = async (email) => {
 
   isUsernameNotUnique ? username += nanoid().substring(0,3) : ""
 
-  return username
+  return username;
 }
 
+// server.get('/get-upload-url',(req,res)=>{
+//   generateUploadURL().then(url=>res.status(200).json({uploadURL:url}))
+//   .catch(err=>{
+//     console.log(err.message)
+//     return res.status(500).json({error:err.message})
+//   })
+// })
 
 server.post("/signup", (req, res) => {
   let { fullname, email, password } = req.body

@@ -26,8 +26,12 @@ const UserAuthForm = ({ type }) => {
         storeInSession("user", JSON.stringify(data))
         setUserAuth(data)
       })
-      .catch(({ response }) => {
-        toast.error(response.data.error)
+      .catch((error) => {
+        if (error.response?.data?.error) {
+          toast.error(error.response.data.error)
+        } else {
+          toast.error(error.message || "An error occurred")
+        }
       })
 
   }
