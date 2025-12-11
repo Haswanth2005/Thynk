@@ -45,7 +45,7 @@ const InPageNavigation = ({ routes,defaultHidden = [] ,defaultActiveIndex = 0,ch
 
       </div>
 
-      {children}
+      {Array.isArray(children) ? children[inPageNavIndex] : children}
 
 
     </>
