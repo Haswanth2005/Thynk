@@ -1,17 +1,34 @@
 const storeInSession = (key, value) => {
-  sessionStorage.setItem(key, value)
+  try {
+    sessionStorage.setItem(key, value)
+  } catch (e) {
+    console.warn("Storage access denied:", e)
+  }
 }
 
 const lookInSession = (key) => {
-  return sessionStorage.getItem(key)
+  try {
+    return sessionStorage.getItem(key)
+  } catch (e) {
+    console.warn("Storage access denied:", e)
+    return null
+  }
 }
 
 const removeFromSession = (key) => {
-  return sessionStorage.removeItem(key)
+  try {
+    return sessionStorage.removeItem(key)
+  } catch (e) {
+    console.warn("Storage access denied:", e)
+  }
 }
 
 const logOutUser = () => {
-  sessionStorage.clear
+  try {
+    sessionStorage.clear()
+  } catch (e) {
+    console.warn("Storage access denied:", e)
+  }
 }
 
 export {storeInSession, lookInSession, removeFromSession, logOutUser}

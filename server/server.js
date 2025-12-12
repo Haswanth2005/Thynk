@@ -8,6 +8,7 @@ import cors from "cors";
 import admin from "firebase-admin";
 import fs from "fs";
 import { getAuth } from "firebase-admin/auth";
+import aws from "aws-sdk"
 
 //Schema
 import User  from "./Schema/User.js";
@@ -15,7 +16,7 @@ import User  from "./Schema/User.js";
 const serviceAccountKey = JSON.parse(fs.readFileSync("./thynk-875-firebase-adminsdk-fbsvc-5cbda0404e.json", "utf8"))
 
 const server = express();
-let PORT = 3000
+let PORT =  3000
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccountKey)
@@ -30,6 +31,27 @@ server.use(cors())
 mongoose.connect(process.env.DB_LOCATION, {
   autoIndex: true
 })
+
+
+//aws connection
+const s3 = new aws.S3({
+  region :'ap-south-1',
+  accessKeyId : process.env.AWS_ACCESS_KEY,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+})
+
+const generateUploadURL = async ()=>{
+  const date = new Date();
+  const imageName = `${nanoid()}-${date.getTime()}.jpeg`
+
+  return await s3.getSignedUrlPromise('putObject', {
+    Bucket: 'thynk-photos',
+    Key: imageName,
+    Expires:1000,
+    ContentType: "image/jpeg"
+  }
+  )
+}
 
 const formatDatatoSend = (user) => {
 
@@ -50,9 +72,17 @@ const generateUsername = async (email) => {
 
   isUsernameNotUnique ? username += nanoid().substring(0,3) : ""
 
-  return username
+  return username;
 }
 
+//upload image url route
+server.get('/get-upload-url',(req,res)=>{
+  generateUploadURL().then(url=>res.status(200).json({uploadURL:url}))
+  .catch(err=>{
+    console.log("S3 Error:", err)
+    return res.status(500).json({error:err.message})
+  })
+})
 
 server.post("/signup", (req, res) => {
   let { fullname, email, password } = req.body
