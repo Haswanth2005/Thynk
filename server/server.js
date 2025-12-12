@@ -8,6 +8,7 @@ import cors from "cors";
 import admin from "firebase-admin";
 import fs from "fs";
 import { getAuth } from "firebase-admin/auth";
+import aws from "aws-sdk"
 
 //Schema
 import User  from "./Schema/User.js";
@@ -31,24 +32,26 @@ mongoose.connect(process.env.DB_LOCATION, {
   autoIndex: true
 })
 
-// const s3 = new AWS.S3({
-//   region :'',
-//   accessKeyId : process.env.AWS_ACCESS_KEY,
-//   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-// })
 
-// const generateUploadURL = ()=>{
-//   const date = new Date();
-//   const imageName = `${nanoid()}-${date.getTime()}`
+//aws connection
+const s3 = new aws.S3({
+  region :'ap-south-1',
+  accessKeyId : process.env.AWS_ACCESS_KEY,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+})
 
-//   return await S3.getSignedUrlPromise('putObject', {
-//     Bucket: 'blogging-website-yt-tutorial',
-//     key: imageName,
-//     Expires:1000,
-//     ContentType: "image/jpeg"
-//   }
-//   )
-// }
+const generateUploadURL = async ()=>{
+  const date = new Date();
+  const imageName = `${nanoid()}-${date.getTime()}.jpeg`
+
+  return await s3.getSignedUrlPromise('putObject', {
+    Bucket: 'thynk-photos',
+    Key: imageName,
+    Expires:1000,
+    ContentType: "image/jpeg"
+  }
+  )
+}
 
 const formatDatatoSend = (user) => {
 
@@ -72,13 +75,14 @@ const generateUsername = async (email) => {
   return username;
 }
 
-// server.get('/get-upload-url',(req,res)=>{
-//   generateUploadURL().then(url=>res.status(200).json({uploadURL:url}))
-//   .catch(err=>{
-//     console.log(err.message)
-//     return res.status(500).json({error:err.message})
-//   })
-// })
+//upload image url route
+server.get('/get-upload-url',(req,res)=>{
+  generateUploadURL().then(url=>res.status(200).json({uploadURL:url}))
+  .catch(err=>{
+    console.log("S3 Error:", err)
+    return res.status(500).json({error:err.message})
+  })
+})
 
 server.post("/signup", (req, res) => {
   let { fullname, email, password } = req.body

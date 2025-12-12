@@ -18,16 +18,17 @@ const BlogEditor = () => {
             {
                 if(url){
                     toast.dismiss(loadingToast);
-                    toast.success("Uploaded Successfully💐");
+                    toast.success("Uploaded Successfully");
                     blogBannerRef.current.src = url;
                 }
             })
             .catch(err=>{
                 toast.dismiss(loadingToast);
-                return toast.error(err);
+                return toast.error(err.message || "Upload failed");
             })
         }
     }
+
 
     const handleTitleKeyDown = (e) => {
         if(e.keyCode==13){
@@ -62,7 +63,7 @@ const BlogEditor = () => {
                     <div className = "mx-auto max-w-[900px] w-full">
                         <div className = "relative aspect-video hover:opacity-80 bg-white border-4 border-grey">
                             <label htmlFor = "uploadBanner">
-                                <img ref = {blogBannerRef} src = {defaultBanner} classname = "z-20"/>
+                                <img ref = {blogBannerRef} src = {defaultBanner} className = "z-20"/>
                                 <input id = "uploadBanner"  type = "file" accept = ".png, .jpg, .jpeg" hidden
                                 onChange = {handleBannerUpload}/>
                                 </label>
@@ -71,9 +72,9 @@ const BlogEditor = () => {
                     </div>
                     <textarea
                         placeholder ="Blog Title" className = "text-4xl font-medium w-full h-20 outline-none resize-none bg-blue mt-10 leading-tight placeholder :opacity-40" onKeyDown={handleTitleKeyDown}
-                        on Change ={handleTitleChange}>
+                        onChange={handleTitleChange}>
                     </textarea>
-                    </section>
+                </section>
             </AnimationWrapper>
         </>
     )
