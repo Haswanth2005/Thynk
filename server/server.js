@@ -15,7 +15,7 @@ import User  from "./Schema/User.js";
 const serviceAccountKey = JSON.parse(fs.readFileSync("./thynk-875-firebase-adminsdk-fbsvc-5cbda0404e.json", "utf8"))
 
 const server = express();
-let PORT = process.env.PORT || 5000
+let PORT =  3000
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccountKey)
@@ -49,7 +49,7 @@ mongoose.connect(process.env.DB_LOCATION, {
 //   }
 //   )
 // }
- 
+
 const formatDatatoSend = (user) => {
 
   const access_token = jwt.sign({id: user._id}, process.env.SECRET_ACCESS_KEY)

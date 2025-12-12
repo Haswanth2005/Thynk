@@ -1,6 +1,5 @@
 import {Link} from "react-router-dom";
-// import logo from "../imgs/black.svg";
-import logo from "../imgs/logo.png";
+import logo from "../imgs/black.svg";
 import AnimationWrapper from "../common/page-animation";
 import defaultBanner from "../imgs/blog banner.png";
 
@@ -28,10 +27,10 @@ const BlogEditor = () => {
             </nav>
             <AnimationWrapper>
                 <section>
-                    <div classname = "mx-auto max-w-[900px] w-full">
-                        <div classname = "relative aspect-video hover:opacity-80 bg-white border-4 border-grey">
+                    <div className = "mx-auto max-w-[900px] w-full">
+                        <div className = "relative aspect-video hover:opacity-80 bg-white border-4 border-grey">
                             <label htmlFor = "uploadBanner">
-                                <img src = {defaultBanner} classname = "z-20"/>
+                                <img src = {defaultBanner} className = "z-20"/>
                                 <input id = "uploadBanner"  type = "file" accept = ".png, .jpg, .jpeg" hidden
                                 onChange = {handleBannerUpload}/>
                                 </label>
