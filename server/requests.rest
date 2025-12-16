@@ -1,8 +1,24 @@
-GET http://localhost:3000/get-upload-url
-# POST http://localhost:6000/signin
-# Content-Type: application/json
+POST http://localhost:3000/create-blog
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NDFiZWEwZWU1NWY5M2RmODk3Y2UwYiIsImlhdCI6MTc2NTkxNjMyMH0.tFHkTz9a1c0JT3So8yzXggvmgUppD_ssOtrd0EwLzsI
 
-# {
-#     "email": "haswanh@gmail.com",
-#     "password": "Haswanth875"
-# }
+{
+    "title": "My First Blog",
+    "des": "This is a sample description for my first blog post.",
+    "banner": "https://example.com/̥banner.jpg",
+    "tags": ["tech", "coding"],
+    "content": {
+        "blocks": [
+            {
+                "type": "paragraph",
+                "data": {
+                    "text": "This ̥is the content of my first blog post."
+                }
+            }
+        ]
+    },
+    "draft": false
+}
+̥
+
+# "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NDFiZWEwZWU1NWY5M2RmODk3Y2UwYiIsImlhdCI6MTc2NTkxNjMyMH0.tFHkTz9a1c0JT3So8yzXggvmgUppD_ssOtrd0EwLzsI"

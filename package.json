@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@editorjs/table": "^2.4.5",
     "lucide-react": "^0.555.0"
   }
 }
