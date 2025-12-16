@@ -175,7 +175,7 @@ const HomePage = () => {
                   categories.map((category, i) => {
                     return <button
                       onClick={loadBlogByCategory}
-                      className={"tag " + (pageState == category ? "bg-black text-white " : " ")}
+                      className={"tag " + (pageState == category.toLowerCase() ? "bg-black text-white " : " ")}
                       key={i}>
                       {category}
                     </button>

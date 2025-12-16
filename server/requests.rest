@@ -1,14 +1,6 @@
-POST  http://localhost:3000/search-blogs
+POST  http://localhost:3000/get-profile
 Content-Type: application/json
 
 {
-  "tag": "frontend"
+  "username": "makthalahaswanth"
 }
-
-# POST http://localhost:6000/signin
-# Content-Type: application/json
-
-# {
-#     "email": "haswanh@gmail.com",
-#     "password": "Haswanth875"
-# }

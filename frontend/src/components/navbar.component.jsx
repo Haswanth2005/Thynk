@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import logo from "../imgs/black.svg"
-import { Link , Outlet } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 import { Search } from "lucide-react";
 import { NotebookPen } from "lucide-react";
 import { UserContext } from "../App";
@@ -13,6 +13,8 @@ const Navbar = () => {
   const [searchBoxVisibility, setSearchBoxVisibility] = useState(false)
   const [userNavPanel, setUserNavPanel] = useState(false)
 
+  let navigate = useNavigate()
+
   const { userAuth, userAuth: { access_token, profile_img } } = useContext(UserContext)
 
 
@@ -23,7 +25,15 @@ const Navbar = () => {
   const handleBlur = () => {
     setTimeout(() => {
       setUserNavPanel(false)
-    },500);
+    }, 500);
+  }
+
+  const handleSearch = (e) => {
+    let query = e.target.value
+
+    if (e.keyCode == 13 && query.length) {
+      navigate(`/search/${query}`)
+    }
   }
 
 
@@ -34,21 +44,22 @@ const Navbar = () => {
           <img src={logo} className='w-full' />
         </Link>
 
-        <div className={'absolute bg-white w-full left-0 top-full mt-0 border-b border-grey py-4 px-[5vw] md:border-0 md:block md:relative md:inset-0 md:p-0 md:w-auto md:show '+ (searchBoxVisibility ? "show" : "hide")}>
+        <div className={'absolute bg-white w-full left-0 top-full mt-0 border-b border-grey py-4 px-[5vw] md:border-0 md:block md:relative md:inset-0 md:p-0 md:w-auto md:show ' + (searchBoxVisibility ? "show" : "hide")}>
           <input
             type="text"
             placeholder='Search'
             className='w-full md:w-auto bg-grey p-4 pl-6 pr-[12%] rounded-full placeholder:text-dark-grey md:pl-14'
+            onKeyDown={handleSearch}
           />
 
-          <Search className='absolute right-[10%] md:pointer-events-none md:left-5 top-1/2 -translate-y-1/2 text-dark-grey'/>
+          <Search className='absolute right-[10%] md:pointer-events-none md:left-5 top-1/2 -translate-y-1/2 text-dark-grey' />
         </div>
 
         <div className='flex items-center gap-6 md:gap-6 ml-auto'>
           <button className='md:hidden bg-grey w-12 h-12 rounded-full flex items-center justify-center'
-          onClick={()=>{setSearchBoxVisibility(currentVal => !currentVal)}}
+            onClick={() => { setSearchBoxVisibility(currentVal => !currentVal) }}
           >
-            <Search/>
+            <Search />
           </button>
 
           <Link to="/editor" className='hidden md:flex gap-2 link'>
@@ -71,7 +82,7 @@ const Navbar = () => {
                   </button>
 
                   {
-                    userNavPanel?<UserNavigationPanel /> : ""
+                    userNavPanel ? <UserNavigationPanel /> : ""
                   }
                 </div>
               </>

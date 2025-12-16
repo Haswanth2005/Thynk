@@ -11,13 +11,13 @@ import { getAuth } from "firebase-admin/auth";
 import aws from "aws-sdk"
 
 //Schema
-import User  from "./Schema/User.js";
+import User from "./Schema/User.js";
 import Blog from "./Schema/Blog.js";
 
 const serviceAccountKey = JSON.parse(fs.readFileSync("./thynk-875-firebase-adminsdk-fbsvc-5cbda0404e.json", "utf8"))
 
 const server = express();
-let PORT =  3000
+let PORT = 3000
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccountKey)
@@ -36,19 +36,19 @@ mongoose.connect(process.env.DB_LOCATION, {
 
 //aws connection
 const s3 = new aws.S3({
-  region :'ap-south-1',
-  accessKeyId : process.env.AWS_ACCESS_KEY,
+  region: 'ap-south-1',
+  accessKeyId: process.env.AWS_ACCESS_KEY,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
 })
 
-const generateUploadURL = async ()=>{
+const generateUploadURL = async () => {
   const date = new Date();
   const imageName = `${nanoid()}-${date.getTime()}.jpeg`
 
   return await s3.getSignedUrlPromise('putObject', {
     Bucket: 'thynk-photos',
     Key: imageName,
-    Expires:1000,
+    Expires: 1000,
     ContentType: "image/jpeg"
   }
   )
@@ -56,7 +56,7 @@ const generateUploadURL = async ()=>{
 
 const formatDatatoSend = (user) => {
 
-  const access_token = jwt.sign({id: user._id}, process.env.SECRET_ACCESS_KEY)
+  const access_token = jwt.sign({ id: user._id }, process.env.SECRET_ACCESS_KEY)
 
   return {
     access_token,
@@ -71,18 +71,18 @@ const generateUsername = async (email) => {
 
   let isUsernameNotUnique = await User.exists({ "personal_info.username": username }).then((result) => result)
 
-  isUsernameNotUnique ? username += nanoid().substring(0,3) : ""
+  isUsernameNotUnique ? username += nanoid().substring(0, 3) : ""
 
   return username;
 }
 
 //upload image url route
-server.get('/get-upload-url',(req,res)=>{
-  generateUploadURL().then(url=>res.status(200).json({uploadURL:url}))
-  .catch(err=>{
-    console.log("S3 Error:", err)
-    return res.status(500).json({error:err.message})
-  })
+server.get('/get-upload-url', (req, res) => {
+  generateUploadURL().then(url => res.status(200).json({ uploadURL: url }))
+    .catch(err => {
+      console.log("S3 Error:", err)
+      return res.status(500).json({ error: err.message })
+    })
 })
 
 server.post("/signup", (req, res) => {
@@ -90,37 +90,37 @@ server.post("/signup", (req, res) => {
 
   //validating data from frontend
   if (fullname.length < 3) {
-    return res.status(403).json({"error" : "Fullname must b3e at least 3 letters long"})
+    return res.status(403).json({ "error": "Fullname must b3e at least 3 letters long" })
   }
 
   if (!email.length) {
-    return res.status(403).json({"email":"Enter Email"})
+    return res.status(403).json({ "email": "Enter Email" })
   }
   if (!emailRegex.test(email)) {
-    return res.status(403).json({"email" : "Email is invalid"})
+    return res.status(403).json({ "email": "Email is invalid" })
   }
 
   if (!passwordRegex.test(password)) {
-    return res.status(403).json({"error":"Password should be 6 to 20 characters long with a numeric, 1 lowercase and 1 uppercase letters"})
+    return res.status(403).json({ "error": "Password should be 6 to 20 characters long with a numeric, 1 lowercase and 1 uppercase letters" })
   }
 
   //hashing
-  bcrypt.hash(password, 10, async (err,hashed_password) => {
+  bcrypt.hash(password, 10, async (err, hashed_password) => {
 
     let username = await generateUsername(email)
 
     let user = new User({
-      personal_info : {fullname , email , password: hashed_password, username}
+      personal_info: { fullname, email, password: hashed_password, username }
     })
 
     user.save().then((u) => {
       return res.status(200).json(formatDatatoSend(u))
     }).catch(err => {
       if (err.code == 11000) {
-        return res.status(500).json({"error":"Email already exists"})
+        return res.status(500).json({ "error": "Email already exists" })
       }
 
-      return res.status(500).json({"error": err.message})
+      return res.status(500).json({ "error": err.message })
     })
 
   })
@@ -134,32 +134,32 @@ server.post("/signin", (req, res) => {
     "personal_info.email": email
   }).then((user) => {
     if (!user) {
-      return res.status(403).json({"error" : "Email not found"})
+      return res.status(403).json({ "error": "Email not found" })
     }
 
 
     if (!user.google_auth) {
       bcrypt.compare(password, user.personal_info.password, (err, result) => {
-        if(err) {
+        if (err) {
           return res.status(403).json({ "error": "Error occured while login please try again" })
         }
 
-        if(!result) {
-          return res.status(403).json({"error": "Incorrect password"})
-        }else{
+        if (!result) {
+          return res.status(403).json({ "error": "Incorrect password" })
+        } else {
           return res.status(200).json(formatDatatoSend(user))
         }
       })
     } else {
-      return res.status(403).json({ "error": "Account was created using google. Try logging with google"})
+      return res.status(403).json({ "error": "Account was created using google. Try logging with google" })
     }
 
 
   })
     .catch(err => {
-    console.log(err)
-    return res.status(500).json({"error" : err.message})
-  })
+      console.log(err)
+      return res.status(500).json({ "error": err.message })
+    })
 
 })
 
@@ -167,138 +167,191 @@ server.post("/google-auth", async (req, res) => {
   let { access_token } = req.body
 
   getAuth()
-  .verifyIdToken(access_token)
-  .then(async (decodedUser) => {
-    let { email, name, picture } = decodedUser
+    .verifyIdToken(access_token)
+    .then(async (decodedUser) => {
+      let { email, name, picture } = decodedUser
 
-    picture = picture.replace("s96-c", "s384-c")
+      picture = picture.replace("s96-c", "s384-c")
 
-    let user = await User.findOne({ "personal_info.email": email }).select("personal_info.fullname personal_info.username personal_info.profile_img google_auth").then((u) => {
-      return u||null
-    }).catch(err => {
-      return res.status(500).json({"error": err.message})
+      let user = await User.findOne({ "personal_info.email": email }).select("personal_info.fullname personal_info.username personal_info.profile_img google_auth").then((u) => {
+        return u || null
+      }).catch(err => {
+        return res.status(500).json({ "error": err.message })
+      })
+
+
+      if (user) { //login
+        if (!user.google_auth) {
+          return res.status(403).json({ "error": "This email was signed up without google. Please log in with password to access the account" })
+        }
+        // Update profile_img if it changed
+        if (user.personal_info.profile_img !== picture) {
+          user.personal_info.profile_img = picture
+          await user.save()
+        }
+      } else {
+        let username = await generateUsername(email)
+        user = new User({
+          personal_info: { fullname: name, email, profile_img: picture, username },
+          google_auth: true
+        })
+
+        await user.save().then((u) => {
+          user = u
+        })
+          .catch(err => {
+            return res.status(500).json({ "error": err.message })
+          })
+      }
+
+      return res.status(200).json(formatDatatoSend(user))
+
     })
-
-
-    if (user) { //login
-      if (!user.google_auth) {
-        return res.status(403).json({"error": "This email was signed up without google. Please log in with password to access the account"})
-      }
-      // Update profile_img if it changed
-      if (user.personal_info.profile_img !== picture) {
-        user.personal_info.profile_img = picture
-        await user.save()
-      }
-    } else {
-      let username = await generateUsername(email)
-      user = new User({
-        personal_info: { fullname: name, email, profile_img: picture, username },
-        google_auth: true
-      })
-
-      await user.save().then((u) => {
-        user = u
-      })
-        .catch(err => {
-          return res.status(500).json({ "error": err.message})
-      })
-    }
-
-    return res.status(200).json(formatDatatoSend(user))
-
-  })
     .catch(err => {
-      return res.status(500).json({"error":"Failed to authenticate you with google. Try with some other google account"})
-  })
+      return res.status(500).json({ "error": "Failed to authenticate you with google. Try with some other google account" })
+    })
 
 })
 
 server.post('/latest-blogs', (req, res) => {
 
-  let {page} = req.body
+  let { page } = req.body
 
   let maxLimit = 5
 
   Blog.find({ draft: false })
-  .populate("author", "personal_info.profile_img personal_info.username personal_info.fullname -_id")
-  .sort({ "publishedAt": -1 })
-  .select("blog_id title des banner activity tags publishedAt -_id")
-  .skip((page - 1)*maxLimit)
-  .limit(maxLimit)
+    .populate("author", "personal_info.profile_img personal_info.username personal_info.fullname -_id")
+    .sort({ "publishedAt": -1 })
+    .select("blog_id title des banner activity tags publishedAt -_id")
+    .skip((page - 1) * maxLimit)
+    .limit(maxLimit)
     .then(blogs => {
-      return res.status(200).json({blogs})
-  })
+      return res.status(200).json({ blogs })
+    })
     .catch(err => {
-      return res.status(500).json({error: err.message})
-  })
+      return res.status(500).json({ error: err.message })
+    })
 
 
 })
 
 server.post("/all-latest-blogs-count", (req, res) => {
-  Blog.countDocuments({draft: false})
+  Blog.countDocuments({ draft: false })
     .then(count => {
-    return res.status(200).json({totalDocs: count})
+      return res.status(200).json({ totalDocs: count })
     })
     .catch(err => {
-    console.log(err.message);
-    return res.status(500).json({error: err.message})
+      console.log(err.message);
+      return res.status(500).json({ error: err.message })
 
-  })
+    })
 
 })
 
 
 server.get("/trending-blogs", (req, res) => {
-  Blog.find({ draft: false})
-  .populate("author", "personal_info.profile_img personal_info.username personal_info.fullname -_id")
-    .sort({ "activity.total_read": -1, "activity.total_likes": -1, "publishedAt": -1})
+  Blog.find({ draft: false })
+    .populate("author", "personal_info.profile_img personal_info.username personal_info.fullname -_id")
+    .sort({ "activity.total_read": -1, "activity.total_likes": -1, "publishedAt": -1 })
     .select("blog_id title publishedAt -_id")
     .limit(5)
     .then(blogs => {
       return res.status(200).json({ blogs })
     })
     .catch(err => {
-      return res.status(500).json({error: err.message})
+      return res.status(500).json({ error: err.message })
     })
 })
 
 server.post("/search-blogs", (req, res) => {
-  let { tag, page } = req.body
+  let { tag, query, page = 1, author } = req.body
 
-  let findQuery = { tags: tag, draft: false }
+  let findQuery
+
+  if (tag) {
+    findQuery = { tags: tag, draft: false }
+  } else if (query) {
+    findQuery = { draft: false, title: new RegExp(query, 'i') }
+  } else if (author) {
+    findQuery = { author: author, draft: false }
+  }
+
   let maxLimit = 5
 
+  console.log("Search Blogs - Author:", author);
+  console.log("Find Query:", findQuery);
+
   Blog.find(findQuery)
-  .populate("author", "personal_info.profile_img personal_info.username personal_info.fullname -_id")
-  .sort({ "publishedAt": -1 })
-  .select("blog_id title des banner activity tags publishedAt -_id")
-  .skip((page-1)*maxLimit)
-  .limit(maxLimit)
+    .populate("author", "personal_info.profile_img personal_info.username personal_info.fullname -_id")
+    .sort({ "publishedAt": -1 })
+    .select("blog_id title des banner activity tags publishedAt -_id")
+    .skip((page - 1) * maxLimit)
+    .limit(maxLimit)
     .then(blogs => {
-      return res.status(200).json({blogs})
-  })
+      console.log("Found Blogs Count:", blogs.length);
+      return res.status(200).json({ blogs })
+    })
     .catch(err => {
-      return res.status(500).json({error: err.message})
-  })
+      return res.status(500).json({ error: err.message })
+    })
 })
 
 server.post("/search-blogs-count", (req, res) => {
 
-  let {tag} = req.body
-  let findQuery = { tags: tag, draft: false }
+  let { tag, query, author } = req.body
+
+  let findQuery
+
+  if (tag) {
+    findQuery = { tags: tag, draft: false }
+  } else if (query) {
+    findQuery = { draft: false, title: new RegExp(query, 'i') }
+  } else if (author) {
+    findQuery = { author, draft: false }
+  }
 
   Blog.countDocuments(findQuery)
     .then(count => {
-      return res.status(200).json({totalDocs: count})
+      return res.status(200).json({ totalDocs: count })
     })
     .catch(err => {
       console.log(err.message);
-      return res.status(500).json({error: err.message})
-  })
+      return res.status(500).json({ error: err.message })
+    })
 
 })
 
+server.post("/search-users", (req, res) => {
+  let { query } = req.body
+
+  User.find({ "personal_info.username": new RegExp(query, 'i') })
+    .limit(50)
+    .select("personal_info.username personal_info.fullname personal_info.profile_img -_id")
+    .then(users => {
+      return res.status(200).json({ users })
+    })
+    .catch(err => {
+      return res.status(500).json({ error: err.message })
+    })
+})
+
+server.post("/get-profile", (req, res) => {
+  let { username } = req.body
+
+  User.findOne({ "personal_info.username": username })
+    .select("-personal_info.password -google_auth -updatedAt -blogs")
+    .then(user => {
+      if (!user) {
+        return res.status(404).json({ "error": "User not found" })
+      }
+      return res.status(200).json({ user })
+    })
+    .catch(err => {
+      return res.status(500).json({ error: err.message })
+    })
+})
+
+
 server.listen(PORT, () => {
-  console.log('listening on port -> '+ PORT)
+  console.log('listening on port -> ' + PORT)
 })
