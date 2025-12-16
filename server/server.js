@@ -27,6 +27,12 @@ let emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/; // regex for e
 let passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,20}$/; // regex for password
 
 server.use(express.json())
+server.use((err, req, res, next) => {
+  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    return res.status(400).json({ error: "Invalid JSON format" });
+  }
+  next();
+});
 server.use(cors())
 
 mongoose.connect(process.env.DB_LOCATION, {
@@ -52,6 +58,24 @@ const generateUploadURL = async () => {
     ContentType: "image/jpeg"
   }
   )
+}
+
+const verifyJWT = (req, res, next) => {
+  const authHeader = req.headers["authorization"]
+  const token = authHeader && authHeader.split(" ")[1]
+
+  if (token == null) {
+    return res.status(403).json({ "error": "Access token not provided" })
+  }
+
+  jwt.verify(token, process.env.SECRET_ACCESS_KEY, (err, user) => {
+    if (err) {
+      return res.status(403).json({ "error": "Invalid access token" })
+    }
+
+    req.user = user.id
+    next()
+  })
 }
 
 const formatDatatoSend = (user) => {
@@ -210,6 +234,63 @@ server.post("/google-auth", async (req, res) => {
     .catch(err => {
       return res.status(500).json({ "error": "Failed to authenticate you with google. Try with some other google account" })
     })
+
+})
+
+server.post('/create-blog', verifyJWT, (req, res) => {
+
+  let authorId = req.user
+  let { title, des, banner, tags, content, draft } = req.body
+
+  if (!draft) {
+    if (!des || !des.length || des.length > 200) {
+      return res.status(403).json({ "error": "Description must be not be greater than 200 characters long" })
+    }
+    if (!banner || !banner.length) {
+      return res.status(403).json({ "error": "Banner image is required" })
+    }
+    if (!content.blocks.length) {
+      return res.status(403).json({ "error": "Content cannot be empty" })
+    }
+    if (!tags || !tags.length || tags.length > 10) {
+      return res.status(403).json({ "error": "Tags must be between 1 and 10" })
+    }
+  }
+
+  if (!title || !title.length) {
+    return res.status(403).json({ "error": "Title is required to create a blog" })
+  }
+
+  tags = tags || [];
+  tags = tags.map(tag => tag.toLowerCase().trim())
+
+  let blogId = title.replace(/[^a-zA-Z0-9 ]/g, "").replace(/\s+/g, '-').trim() + nanoid().substring(0, 4)
+
+  let blog = new Blog({
+    blog_id: blogId,
+    title: title,
+    des: des,
+    banner: banner,
+    tags: tags,
+    content: content,
+    author: authorId,
+    draft: Boolean(draft)
+  })
+
+  blog.save().then(blog => {
+    let incrementVal = draft ? 0 : 1
+    User.findOneAndUpdate({ _id: authorId }, { $inc: { "account_info.total_posts": incrementVal }, $push: { blogs: blog._id } })
+      .then((user) => {
+        return res.status(200).json({ "message": "Blog created successfully", blogId: blogId })
+      }).catch(() => {
+        return res.status(500).json({ "error": "Error occured while updating user data. Try again later." })
+      })
+  })
+    .catch(err => {
+      console.log("Blog creation error:", err)
+      return res.status(500).json({ "error": "Error occured while creating blog. Try again later." })
+    })
+
 
 })
 
