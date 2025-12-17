@@ -14,7 +14,7 @@ import NoDataMessage from '../components/nodata.component.jsx';
 import LoadMoreDataBtn from '../components/load-more.component.jsx';
 
 
-export const profileDataStructure = {
+export const profileStructure = {
   personal_info: {
     fullname: "",
     username: "",
@@ -26,7 +26,14 @@ export const profileDataStructure = {
     total_blogs: 0,
     total_reads: 0
   },
-  social_links: {},
+  social_links: {
+    youtube: "",
+    instagram: "",
+    facebook: "",
+    twitter: "",
+    github: "",
+    website: ""
+  },
   joinedAt: ""
 }
 
@@ -34,7 +41,7 @@ export const profileDataStructure = {
 const ProfilePage = () => {
   let { id: profileId } = useParams()
 
-  let [profile, setProfile] = useState(profileDataStructure)
+  let [profile, setProfile] = useState(profileStructure)
   let [loading, setLoading] = useState(true)
   let [blogs, setBlogs] = useState(null)
 
@@ -93,7 +100,7 @@ const ProfilePage = () => {
   }, [profileId])
 
   const resetState = () => {
-    setProfile(profileDataStructure)
+    setProfile(profileStructure)
     setBlogs(null)
     setLoading(true)
   }

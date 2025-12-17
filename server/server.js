@@ -660,7 +660,90 @@ server.post("/delete-blog", verifyJWT, (req, res) => {
 
 })
 
-server.post("/get-replies", (req, res) => {
+
+server.post("/update-profile", verifyJWT, (req, res) => {
+  let user_id = req.user;
+  let { username, bio, social_links } = req.body;
+
+  let updateObj = {
+    "personal_info.username": username,
+    "personal_info.bio": bio,
+    social_links
+  }
+
+  User.findOneAndUpdate({ _id: user_id }, updateObj, {
+    runValidators: true
+  })
+    .then(() => {
+      return res.status(200).json({ username })
+    })
+    .catch(err => {
+      if (err.code == 11000) {
+        return res.status(409).json({ error: "username is already taken" })
+      }
+      return res.status(500).json({ error: err.message })
+    })
+
+})
+
+server.post("/change-password", verifyJWT, (req, res) => {
+  let { currentPassword, newPassword } = req.body;
+
+  if (!passwordRegex.test(currentPassword) || !passwordRegex.test(newPassword)) {
+    return res.status(403).json({ error: "Password should be 6 to 20 characters long with a numeric, 1 lowercase and 1 uppercase letters" })
+  }
+
+  User.findOne({ _id: req.user })
+    .then((user) => {
+
+      if (user.google_auth) {
+        return res.status(403).json({ error: "You can't change account's password because you logged in through google" })
+      }
+
+      bcrypt.compare(currentPassword, user.personal_info.password, (err, result) => {
+        if (err) {
+          return res.status(500).json({ error: "Some error occured while changing the password, please try again later" })
+        }
+
+        if (!result) {
+          return res.status(403).json({ error: "Incorrect current password" })
+        }
+
+        bcrypt.hash(newPassword, 10, (err, hashed_password) => {
+          User.findOneAndUpdate({ _id: req.user }, { "personal_info.password": hashed_password })
+            .then((u) => {
+              return res.status(200).json({ status: 'password changed' })
+            })
+            .catch(err => {
+              return res.status(500).json({ error: 'Some error occured while saving new password, please try again later' })
+            })
+        })
+      })
+
+    })
+    .catch(err => {
+      console.log(err);
+      res.status(500).json({ error: "User not found" })
+    })
+
+})
+
+server.post("/update-profile-img", verifyJWT, (req, res) => {
+
+  let { url } = req.body;
+
+  User.findOneAndUpdate({ _id: req.user }, { "personal_info.profile_img": url })
+    .then(() => {
+      return res.status(200).json({ profile_img: url })
+    })
+    .catch(err => {
+      return res.status(500).json({ error: err.message })
+    })
+
+})
+
+
+server.get("/get-replies", (req, res) => {
   let { _id, skip } = req.body;
 
   let maxLimit = 5;
