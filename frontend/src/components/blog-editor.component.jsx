@@ -26,8 +26,8 @@ const BlogEditor = () => {
     useEffect(() => {
         if (!textEditor.isReady) {
             setTextEditor(new EditorJS({
-                holderId: "textEditor",
-                data: content,
+                holder: "textEditor",
+                data: Array.isArray(content) ? content[0] : content,
                 tools: tools,
                 placeholder: "Start writing your blog...",
             }));
@@ -116,7 +116,7 @@ const BlogEditor = () => {
             textEditor.save().then(content => {
 
                 let blogObj = {
-                    title, banner, des, content, tags, draft: true
+                    title, banner, des, content, tags, draft: true, id: blog.blog_id
                 }
                 axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/create-blog", blogObj, {
                     headers: {

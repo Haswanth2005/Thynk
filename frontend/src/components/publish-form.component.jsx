@@ -66,7 +66,7 @@ const PublishForm = () => {
         e.target.classList.add('disable');
 
         let blogObj = {
-            title, banner, des, content, tags, draft: false
+            title, banner, des, content, tags, draft: false, id: blog.blog_id
         }
 
         axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/create-blog", blogObj, {
