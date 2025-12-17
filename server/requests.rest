@@ -1,4 +1,12 @@
-POST  http://localhost:3000/get-profile
+# POST  http://localhost:3000/get-blog
+# Content-Type: application/json
+
+# {
+#   "blog_id": "safdafmUJf"
+# }
+
+
+POST http://localhost:3000/get-profile
 Content-Type: application/json
 
 {
