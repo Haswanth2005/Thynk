@@ -4,11 +4,11 @@ export default {
     theme: {
 
         colors: {
-            'white': '#FFFFFF',
-            'black': '#242424',
-            'grey': '#F3F3F3',
-            'dark-grey': '#6B6B6B',
-            'red': '#FF4E4E',
+            'white': 'var(--white)',
+            'black': 'var(--black)',
+            'grey': 'var(--grey)',
+            'dark-grey': 'var(--dark-grey)',
+            'red': 'var(--red)',
             'transparent': 'transparent',
             'twitter': '#1DA1F2',
             'purple': '#8B46FF'
@@ -26,8 +26,8 @@ export default {
 
         extend: {
             fontFamily: {
-              inter: ["'Inter'", "sans-serif"],
-              gelasio: ["'Gelasio'", "serif"]
+                inter: ["'Inter'", "sans-serif"],
+                gelasio: ["'Gelasio'", "serif"]
             },
         },
 

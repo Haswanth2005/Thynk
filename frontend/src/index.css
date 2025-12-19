@@ -5,6 +5,22 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+    --white: #FFFFFF;
+    --black: #242424;
+    --grey: #F3F3F3;
+    --dark-grey: #6B6B6B;
+    --red: #FF4E4E;
+}
+
+[data-theme='dark'] {
+    --white: #121212;
+    --black: #FAFAFA;
+    --grey: #2A2A2A;
+    --dark-grey: #9E9E9E;
+    --red: #FF4E4E;
+}
+
 @layer components {
     * {
         @apply m-0 p-0 box-border text-base outline-purple/30 duration-100;
@@ -15,7 +31,7 @@
     }
 
     body {
-        @apply font-inter font-normal text-black;
+        @apply font-inter font-normal text-black bg-white;
     }
 
     i {
@@ -84,7 +100,7 @@
     }
 
     .sidebar-link.active {
-        @apply text-black border-r-2 border-black pl-6 bg-grey/50 -ml-6 md:rounded-tl-lg md:rounded-bl-lg max-md:border-none;
+        @apply text-black border-r-2 border-black pl-6 bg-grey -ml-6 md:rounded-tl-lg md:rounded-bl-lg max-md:border-none;
     }
 
     #textEditor h2,

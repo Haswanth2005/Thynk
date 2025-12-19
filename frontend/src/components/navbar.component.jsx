@@ -1,12 +1,14 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import logo from "../imgs/black.svg"
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { Search } from "lucide-react";
 import { NotebookPen } from "lucide-react";
 import { UserContext } from "../App";
-import { useContext } from 'react';
+
 import UserNavigationPanel from './user-navigation.component';
 
+import { ThemeContext } from '../common/theme.context';
+import axios from "axios";
 
 const Navbar = () => {
 
@@ -15,8 +17,26 @@ const Navbar = () => {
 
   let navigate = useNavigate()
 
-  const { userAuth, userAuth: { access_token, profile_img } } = useContext(UserContext)
+  const { userAuth, userAuth: { access_token, profile_img, new_notification_available }, setUserAuth } = useContext(UserContext)
+  const { theme, setTheme, toggleTheme } = useContext(ThemeContext);
 
+  useEffect(() => {
+
+    if (access_token) {
+      axios.get(import.meta.env.VITE_SERVER_DOMAIN + "/new-notification", {
+        headers: {
+          'Authorization': `Bearer ${access_token}`
+        }
+      })
+        .then(({ data }) => {
+          setUserAuth({ ...userAuth, ...data })
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    }
+
+  }, [access_token])
 
   const handleUserNavPanel = () => {
     setUserNavPanel(currentVal => !currentVal)
@@ -25,7 +45,7 @@ const Navbar = () => {
   const handleBlur = () => {
     setTimeout(() => {
       setUserNavPanel(false)
-    }, 500);
+    }, 200);
   }
 
   const handleSearch = (e) => {
@@ -41,8 +61,9 @@ const Navbar = () => {
     <>
       <nav className='navbar'>
         <Link to="/" className='flex-none w-28'>
-          <img src={logo} className='w-full' />
+          <img src={logo} className={'w-full ' + (theme == 'light' ? "" : "invert")} />
         </Link>
+        {/* Note: If there's a different logo for dark mode, logic should be here. Assuming same logo for now as it's 'black.svg' which might need inversion if background is black. */}
 
         <div className={'absolute bg-white w-full left-0 top-full mt-0 border-b border-grey py-4 px-[5vw] md:border-0 md:block md:relative md:inset-0 md:p-0 md:w-auto md:show ' + (searchBoxVisibility ? "show" : "hide")}>
           <input
@@ -67,12 +88,20 @@ const Navbar = () => {
             <p>Write</p>
           </Link>
 
+          <button className='w-12 h-12 rounded-full bg-grey relative hover:bg-black/10 flex items-center justify-center' onClick={toggleTheme}>
+            <i className={"fi " + (theme == 'light' ? "fi-rr-moon-stars" : "fi-rr-sun") + " text-2xl block mt-1"}></i>
+          </button>
+
           {
             access_token ?
               <>
-                <Link to="/dashboard/notification" >
+                <Link to="/dashboard/notifications" >
                   <button className='w-12 h-12 rounded-full bg-grey relative hover:bg-black/10'>
                     <i className="ri-notification-2-line text-2xl mt-1"></i>
+                    {
+                      new_notification_available ?
+                        <span className="bg-red w-3 h-3 rounded-full absolute z-10 top-2 right-2"></span> : ""
+                    }
                   </button>
                 </Link>
 

@@ -11,6 +11,7 @@ import { tools } from "../components/tools.component.jsx";
 import axios from "axios";
 import { UserContext } from "../App";
 import { useNavigate } from "react-router-dom";
+import { ThemeContext } from '../common/theme.context';
 
 
 const BlogEditor = () => {
@@ -19,6 +20,7 @@ const BlogEditor = () => {
     let { blog, blog: { title, banner, content, tags, des }, setBlog, textEditor, setTextEditor, setEditorState } = useContext(EditorContext);
 
     let { userAuth: { access_token } } = useContext(UserContext);
+    let { theme } = useContext(ThemeContext);
 
     let navigate = useNavigate();
 
@@ -142,11 +144,12 @@ const BlogEditor = () => {
 
     }
 
+
     return (
         <>
             <nav className="navbar">
                 <Link to="/" className='flex-none w-28'>
-                    <img src={logo} className='w-full' />
+                    <img src={logo} className={'w-full ' + (theme == 'light' ? "" : "invert")} />
                 </Link>
 
                 <p className="max-md:hidden text-black line-clamp-1 w-full">
@@ -168,7 +171,7 @@ const BlogEditor = () => {
                     <div className="mx-auto max-w-[900px] w-full">
                         <div className="relative aspect-video hover:opacity-80 bg-white border-4 border-grey">
                             <label htmlFor="uploadBanner">
-                                <img src={banner} className="z-20" />
+                                <img src={banner || defaultBanner} className="z-20" onError={handleError} />
                                 <input id="uploadBanner" type="file" accept=".png, .jpg, .jpeg" hidden
                                     onChange={handleBannerUpload} />
                             </label>
@@ -177,7 +180,7 @@ const BlogEditor = () => {
                     </div>
                     <textarea
                         defaultValue={title}
-                        placeholder="Blog Title" className="text-4xl font-medium w-full h-20 outline-none resize-none bg-blue mt-10 leading-tight placeholder :opacity-40" onKeyDown={handleTitleKeyDown}
+                        placeholder="Blog Title" className="text-4xl font-medium w-full h-20 outline-none resize-none bg-transparent text-black mt-10 leading-tight placeholder:opacity-40" onKeyDown={handleTitleKeyDown}
                         onChange={handleTitleChange}>
                     </textarea>
 
