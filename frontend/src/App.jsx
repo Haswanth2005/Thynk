@@ -15,17 +15,20 @@ import ChangePassword from "./pages/change-password.page";
 import EditProfile from "./pages/edit-profile.page";
 import Notifications from "./pages/notifications.page";
 import ManageBlogs from "./pages/manage-blogs.page";
+import LandingPage from "./pages/landing.page";
 import { ThemeContext, ThemeProvider } from "./common/theme.context";
 
 export const UserContext = createContext({});
 
 const App = () => {
-    const [userAuth, setUserAuth] = useState({ access_token: null, user: null });
+    const [userAuth, setUserAuth] = useState(() => {
+        let userInSession = lookInSession("user");
+        return userInSession ? JSON.parse(userInSession) : { access_token: null, user: null }
+    });
 
     useEffect(() => {
         let userInSession = lookInSession("user");
         userInSession ? setUserAuth(JSON.parse(userInSession)) : setUserAuth({ access_token: null, user: null })
-
     }, [])
 
 
@@ -38,7 +41,7 @@ const App = () => {
                     <Route path="/editor" element={<Editor />} />
                     <Route path="/editor/:blog_id" element={<Editor />} />
                     <Route path="/" element={<Navbar />}>
-                        <Route index element={<HomePage />} />
+                        <Route index element={userAuth.access_token ? <HomePage /> : <LandingPage />} />
                         <Route path="settings" element={<SideNav />}>
                             <Route path="edit-profile" element={<EditProfile />} />
                             <Route path="change-password" element={<ChangePassword />} />
