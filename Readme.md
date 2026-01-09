@@ -7,8 +7,7 @@
   <p>
     <a href="#-features">Features</a> •
     <a href="#-tech-stack">Tech Stack</a> •
-    <a href="#-installation">Installation</a> •
-    <a href="#-screenshots">Screenshots</a>
+    <a href="#-installation">Installation</a>
   </p>
 
   <!-- Badges -->
@@ -106,16 +105,6 @@ Run the frontend: `npm run dev`
 
 ---
 
-## 📸 Screenshots
-
-<div align="center">
-  <img src="https://via.placeholder.com/800x400?text=Home+Feed+Preview" alt="Home Feed"/>
-  <br/><br/>
-  <img src="https://via.placeholder.com/800x400?text=Blog+Editor+Preview" alt="Editor"/>
-</div>
-
----
-
 ## 🤝 Contributing
 Got an idea? Found a bug?
 1. Fork the repo
@@ -127,5 +116,5 @@ Got an idea? Found a bug?
 ---
 
 <div align="center">
-  Made with ❤️ by <a href="https://github.com/yourusername">Your Name/Team</a>
+  Made with ❤️ by <a href="www.linkedin.com/in/haswanth-m875">Haswanth</a>
 </div>
