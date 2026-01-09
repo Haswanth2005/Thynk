@@ -335,8 +335,89 @@ Social interaction is fostered through a commenting system that supports nested 
 
 ## A. APPENDICES
 
-### A.1 APPENDIX 1
--   Use Case Diagrams (Placeholder)
+### A.1 Database Schema Diagram (ERD)
 
-### A.2 APPENDIX 2
--   Database Schema Diagrams (Placeholder)
+```mermaid
+erDiagram
+    User ||--o{ Blog : "authors"
+    User ||--o{ Comment : "writes"
+    User ||--o{ Notification : "receives"
+    Blog ||--o{ Comment : "has"
+    Blog ||--o{ Notification : "generates"
+    Comment ||--o{ Comment : "replies"
+
+    User {
+        string fullname
+        string email
+        string username
+        string password
+        string bio
+        string profile_img
+        boolean google_auth
+    }
+
+    Blog {
+        string blog_id
+        string title
+        string des
+        string content
+        string[] tags
+        ObjectId author
+        boolean draft
+    }
+
+    Comment {
+        string comment
+        ObjectId blog_id
+        ObjectId commented_by
+        ObjectId parent
+        boolean isReply
+    }
+
+    Notification {
+        string type
+        ObjectId blog
+        ObjectId notification_for
+        ObjectId user
+        boolean seen
+    }
+```
+
+### A.2 Use Case Overview
+**Actors**:
+- **Reader**: Can view blogs, search, like, and comment (requires login).
+- **Writer**: Can create, edit, delete, and publish blogs.
+- **Admin**: Manages user accounts (future scope).
+
+**Core Use Cases**:
+1.  **Authentication**: Sign Up, Sign In, Google Auth, Change Password.
+2.  **Blog Management**: Create Blog, Edit Blog, Draft Save, Publish, Delete.
+3.  **Discovery**: Search Blogs, Filter by Tags, View Trending, View Latest.
+4.  **Engagement**: Like/Unlike Blog, Add Comment, Reply to Comment, Receive Notifications.
+5.  **Profile**: View Profile, Update Bio/Social Links, Update Profile Image.
+
+### A.3 API Endpoints Reference
+
+| Method | Endpoint | Description | Auth Required |
+| :--- | :--- | :--- | :--- |
+| **Auth** | | | |
+| POST | `/signup` | Register a new user | No |
+| POST | `/signin` | Login with email/password | No |
+| POST | `/google-auth` | Login with Google OAuth | No |
+| **Blogs** | | | |
+| POST | `/create-blog` | Create or update a blog post | Yes |
+| POST | `/latest-blogs` | Fetch latest published blogs | No |
+| POST | `/trending-blogs` | Fetch trending blogs | No |
+| POST | `/search-blogs` | Search by query, tag, or author | No |
+| POST | `/get-blog` | Get full blog details | No |
+| POST | `/delete-blog` | Delete a blog post | Yes |
+| **Interactions** | | | |
+| POST | `/like-blog` | Like or unlike a blog | Yes |
+| POST | `/add-comment` | Add a comment or reply | Yes |
+| POST | `/get-blog-comments` | Get comments for a blog | No |
+| POST | `/delete-comment` | Delete a comment | Yes |
+| **User** | | | |
+| POST | `/get-profile` | Get public user profile | No |
+| POST | `/update-profile` | Update bio and social links | Yes |
+| POST | `/update-profile-img` | Update profile picture | Yes |
+| POST | `/notifications` | Get user notifications | Yes |
